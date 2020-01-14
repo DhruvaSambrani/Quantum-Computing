@@ -2,11 +2,15 @@ module QuantumComputing
 include("./QuantumAlgebra.jl")
 using .QuantumAlgebra
 import .QuantumAlgebra: transform!, measure!
-import Base: show, *
+import Base: show, *, kron
 import LinearAlgebra: I
 
 export Basis
 export Identity
+
+"""
+Qubit is an alias for Ket
+"""
 mutable struct Qubit
     ψ :: Ket
     """
@@ -16,18 +20,10 @@ mutable struct Qubit
     Normal Basis considered if no Basis provided
     """
     function Qubit(ψ::Array{T,1}, basis::Basis ) where T<:Number
-        if length(ψ) == 2
-            new(Ket(ψ, basis))
-        else
-            throw("IncorrectSizeError: Qubits must be in a 2 dimension basis")
-        end
+        new(Ket(ψ, basis))
     end
     function Qubit(ψ::Array{T,1}) where T<:Number
-        if length(ψ) == 2
-            new(Ket(ψ))
-        else
-            throw("IncorrectSizeError: Qubits must be in a 2 dimension basis")
-        end
+        new(Ket(ψ))
     end
 end # Qubit
 export Qubit
@@ -83,17 +79,17 @@ export show
 Operates an operator on a qubit
 """
 function operate!(operator::Operator, qubit::Qubit) :: Qubit
-    if operator.number_of_bits == 1
+    if operator.number_of_bits == length(qubit.ψ.coefficients)/2
         qubit.ψ.coefficients = transform(operator, qubit.ψ.basis).matrix * qubit.ψ.coefficients
     else
-        throw("IncorrectInputNumberError: Expected $(operator.number_of_bits), got 1")
+        throw("IncorrectInputNumberError: Expected $(operator.number_of_bits), got $(Int(length(qubit.ψ.coefficients)/2))")
     end
     return qubit
 end # function operate!
 export operate!
-function operate!(operator::Operator, qubits::Array{Qubit, 1}) :: Array{Qubit, 1}
+function operate!(operator::Operator, qubit::Qubit, qubits::Array{Number, 1}) :: Array{Qubit, 1}
     if operator.number_of_bits == length(qubits)
-        throw("UnderConstructionError:")
+        operate!()
     else
         throw("IncorrectInputNumberError: Expected $(operator.number_of_bits), got $(length(qubits))")
     end
@@ -119,6 +115,16 @@ function *(operator1::Operator, operator2::Operator) :: Operator
 end
 export *
 
+"""
+    kron(q1::Qubit, q2::Qubit)
+
+kron overload for Qubits
+"""
+function kron(q1::Qubit, q2::Qubit)
+    return Qubit(Array{Number}(kron(q1.ψ.coefficients, q2.ψ.coefficients)))
+end # function
+⊗ = kron
+export kron, ⊗
 """
     measure(qubit::Qubit) :: Int64
 

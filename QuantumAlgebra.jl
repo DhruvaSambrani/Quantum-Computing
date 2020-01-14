@@ -1,7 +1,7 @@
 module QuantumAlgebra
 using LinearAlgebra
 using StatsBase
-import Base: *, ==, show
+import Base: *, ==, show, kron
 
 struct Basis
     transformMatrix::Array{Number, 2}
@@ -122,6 +122,16 @@ function ==(psi1::Bra, psi2::Bra) :: Bool
 end
 export ==
 
+"""
+    kron(k1::Ket,k2::Ket)
+
+Returns the tensor product ⊗ of two kets
+"""
+function kron(k1::Ket,k2::Ket)
+    return Ket(Array{Number}(kron(k1.coefficients, k2.coefficients)))
+end # function
+⊗ = kron
+export kron, ⊗
 function norm(ψ::Union{Ket,Bra}) :: Real
     return √sum(ψ.coefficients.^2)
 end
