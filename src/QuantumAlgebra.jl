@@ -127,8 +127,11 @@ export ==
 
 Returns the tensor product ⊗ of two kets
 """
-function kron(k1::Ket,k2::Ket)
+function kron(k1::Ket,k2::Ket) :: Ket
     return Ket(Array{Number}(kron(k1.coefficients, k2.coefficients)))
+end # function
+function kron(ks::Array{Ket}) :: Ket
+    return mapfoldr(identity,kron,ks)
 end # function
 ⊗ = kron
 export kron, ⊗
@@ -143,4 +146,4 @@ function normalise!(ψ::Union{Ket,Bra})
 end
 export normalise!
 
-end  # module QuantumComputing
+end  # module QuantumAlgebra

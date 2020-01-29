@@ -1,0 +1,8 @@
+name = "QuantumComputing"
+uuid = "c839918c-ef46-49b2-a922-485aa67f50a0"
+authors = ["Dhruva Sambrani <44899822+DhruvaSambrani@users.noreply.github.com>"]
+version = "0.1.0"
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
