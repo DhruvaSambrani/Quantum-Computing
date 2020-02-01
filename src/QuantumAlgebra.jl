@@ -115,7 +115,7 @@ function ==(b1::Basis, b2::Basis) :: Bool
     return b1.transformMatrix == b2.transformMatrix
 end
 function ==(psi1::Ket, psi2::Ket) :: Bool
-    return ps1.coefficients==ps2.coefficients && ps1.basis == ps2.basis
+    return psi1.coefficients==psi2.coefficients && psi1.basis == psi2.basis
 end
 function ==(psi1::Bra, psi2::Bra) :: Bool
     return ps1.coefficients==ps2.coefficients && ps1.basis == ps2.basis
@@ -136,7 +136,7 @@ end # function
 ⊗ = kron
 export kron, ⊗
 function norm(ψ::Union{Ket,Bra}) :: Real
-    return √sum(ψ.coefficients.^2)
+    return √sum(abs2.(ψ.coefficients))
 end
 export norm
 
