@@ -233,12 +233,21 @@ end
 export *
 
 """
-    Base.^(op::Operator, n::Int64)
+    Base.^(op::Operator, n::Int64) :: Operator
 
 Returns the n<sup>th</sup> tensor product of the operator
 """
 function ^(op::Operator, n::Int64) :: Operator
     return Operator(op.symbol*"^"*string(n), kron(fill(op, n)))
+end # function
+
+"""
+    Base.^(q::Qubit, n::Int64) :: 
+
+Returns the n<sup>th</sup> tensor product of the Qubit
+"""
+function ^(q::Qubit, n::Int64) :: Operator
+    return kron(fill(op, n))
 end # function
 
 
@@ -279,6 +288,8 @@ end # function
 
 ⊗ = Base.kron
 export kron, ⊗
+
+function Base.p
 """
     measure(qubit::Qubit) :: Int64
 
