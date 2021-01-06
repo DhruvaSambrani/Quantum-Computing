@@ -149,7 +149,7 @@ Overloaded from Base
 Pretty print Circuit
 """
 function Base.show(io::IO, circuit::Circuit)
-    print(
+    print(io,
         join(
             [
                 circuit.circuit[i].symbol *
