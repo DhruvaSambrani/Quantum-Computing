@@ -3,38 +3,34 @@ using LinearAlgebra
 using StatsBase
 import Base: *, ==, show, kron
 
-struct Basis
-    transformMatrix::Array{Number,2}
-    name::String
-    function Basis(transformMatrix::Array{T,2}, name::String) where T <: Number
-        length(transformMatrix) % 4 == 0 && round.(adjoint(transformMatrix) * transformMatrix; digits=6) == I  || throw("NotUnitaryError: transformMatrix not unitary")
-        new(transformMatrix, name)
+export Basis, Identity
+export Bra
+
+struct Basis <: AbstractArray
+    transformMatrix::AbstractArray{Complex,2}
+    function Basis(transformMatrix::AbstractArray{Complex,2})
+        @fastmath transformMatrix' * transformMatrix ≈ I  || throw("NotUnitaryError: transformMatrix not unitary")
+        new(transformMatrix)
     end
 end
-export Basis
-function Base.show(io::IO, b::Basis)
-    println("Basis: $(b.name)")
-    show(io, "text/plain", b.transformMatrix)
-end
+Base.show(io::IO, mime::MIME, b::Basis) = show(io, "text/plain", mime, b.transformMatrix)
+Base.@propagate_inbounds Base.getindex(b::Basis, i) = b.transformMatrix[i]
+
 function Identity(n::Integer=2)::Basis
-    return Basis(Int.(Array(I, n, n)), "Normal")
+    return Basis(I(n))
 end
-export Identity
+
 mutable struct Bra
-    coefficients::Array{Number,2}
-    basis::Basis
-    function Bra(coefficients::Array{T,2}, basis::Basis) where T <: Number
-        if size(coefficients, 1) == 1 || throw("RowError: Not a row vector") && size(coefficients, 2) % 2 == 0 || throw("SizeError: Size must be 2n") && length(coefficients) == size(basis.transformMatrix, 1) || throw("IncorrectBase: This vector cannot be in this basis")
-            new(coefficients / √sum(coefficients.^2), basis)
-        end
+    coefficients::Array{Complex,2}
+    function Bra(coefficients::Array{T,2}, basis::Basis) where T <: Complex
+        size(coefficients, 1) == 1 || throw("Column") && length(coefficients) == size(basis.transformMatrix, 1) || throw("IncorrectBasis: This vector cannot be in this basis")
+        transformed = reshape(coefficients, 1, :) * basis'
+        Bra(transformed)
     end
     function Bra(coefficients::Array{T,2}) where T <: Number
-        if size(coefficients, 1) == 1 || throw("RowError: Not a row vector") && size(coefficients, 2) % 2 == 0 || throw("SizeError: Size must be 2n")
-            new(coefficients / √sum(coefficients.^2), Identity(length(coefficients)))
-        end
+        new(coefficients / norm(coefficients))
     end
 end
-export Bra
 function Base.show(io::IO, ψ::Bra)
     print("⟨$(join(ψ.coefficients, ','))|")
 end
